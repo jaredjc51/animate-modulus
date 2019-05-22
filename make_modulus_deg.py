@@ -8,17 +8,16 @@ version 1.1
   *  Animation module used
 """
 
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import animation, style
 import glob
-style.use('video')
+style.use('video.mplstyle')
 framerate = 10  # frames / sec (int)
 # List all .csv immittance files
-rawfile = glob.glob('.\*.csv')
-# Clean up filename
-filenames = [x[2:] for x in rawfile]
+filenames = glob.glob(os.path.join('immittance', '*.csv'))
 # Get total number of files
 num_files = len(filenames)
 # Initalize dictionary to hold all of the csv files in memory
@@ -85,7 +84,7 @@ def data_gen():
     global p, filenames, last_deg_index, speedup, num_files
     i = 0
     while i <= num_files:  # Returns here
-        print str(i)+' of '+str(num_files)
+        print(str(i),'of',str(num_files))
         data = {}
         data['curr_x'] = p.loc[filenames[i], :, u'# f'].values
         data['curr_y'] = p.loc[filenames[i], :, u'imagM'].values

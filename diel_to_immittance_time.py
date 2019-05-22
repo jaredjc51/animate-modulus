@@ -223,7 +223,7 @@ tup0 = convert_z(f0, r0, x0, area, thickness, per_cm)
 # Stack into one array
 out0 = np.column_stack(tup0)
 # Export immittance
-export_name0 = os.path.join(directory, filename[:-5]+'_initial_all.csv')
+export_name0 = os.path.join(directory, filename[:-5]+'_initial_all.dat')
 np.savetxt(export_name0, out0, delimiter=',',header=h)
 # Export zveiw
 if save_zview is True:
@@ -277,4 +277,5 @@ plt.legend(loc='best')
 plt.title('Real admittance at various frequencies')
 plt.xlabel('Time (s)')
 plt.ylabel('Real admittance (S/cm)')
+plt.savefig(filename[:-5]+'_Admittance_frequency.svg')
 plt.show()
