@@ -4,7 +4,10 @@ Python script for reading impedance measurements as a function of time
 and converting them to all immittance formalisms
 Author: Jared Carter, Clive Randall Group
 Version 1.2
-Last updated: 2018-02-12
+Last updated: 2019-05-22
+
+v 1.3
+  - Python 3 compatible
 
 v 1.2
   - Improved documentation
@@ -17,7 +20,7 @@ v 1.1
 #%%############################################################################
 ### Change these values #######################################################
 
-filename = 'B-252_4sweepfreq_deg40_recov.diel'
+filename = 'degradation_data.diel'
 area = 0.335 * 0.328 # cm^2
 thickness = 0.5 # cm
 # Save impedance in Z-view compatible format?
@@ -25,7 +28,7 @@ save_zview = False
 # Area correction? True = Ohm/cm and S/cm for Z and Y
 per_cm = True
 # Frequencies for admittance vs. time
-freq_list = [20, 100]
+freq_list = [20, 1e6]
 
 #%%############################################################################
 ###############################################################################
@@ -43,7 +46,27 @@ h = 'f,1/f,realY,imagY,realZ,imagZ,realM,imagM,realE,imagE,tandelta'
 
 def getdata(filename):
     '''
-    Function that reads .diel files and returns sweeps and measurements
+    This function reads the .diel file and returns a dictionary with the values
+    of each sweep as well as a dictionary with a list of each measurement.
+
+    Parameters
+    ----------
+    filename : (string)
+        Name of .diel file to be imported
+
+    Returns
+    -------
+    s : (dict)
+        A dictionary where the keys are the sweeps and their values are lists
+        of the swept parameter
+    m : (dict)
+        A dictionary where the keys are the thing being measured and the values
+        are lists of the measured values
+
+    Examples
+    --------
+    >>> s,m = diel.getdata('myfile.diel')
+    dict s, dict m
     '''
     # initialize values
     az = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -52,11 +75,11 @@ def getdata(filename):
     m = {}
     H = True
     # open the file
-    with open(filename, 'r+b') as f:
+    with open(filename, 'r') as f:
         # iterate over every line in the file
         for line in f:
             # remove extra line breaks
-            line = line.replace('\r\n', '')
+            line = line.replace('\r', '').replace('\n', '')
             # Check if we are in the header
             if H is True:
                 # Define a new sweep
@@ -65,7 +88,7 @@ def getdata(filename):
                     sline = line.split('\t')
                     xname = az[letter]+' '+sline[0]
                     # Values that the sweep uses
-                    line = f.next().replace('+', '').replace(' ', '')
+                    line = next(f).replace('+', '').replace(' ', '')
                     sline = line.split('\t')
                     del sline[-1]   # Last value in list is empty
                     # Make the strings into numbers
@@ -83,7 +106,7 @@ def getdata(filename):
                 if line in m:
                     key = line
                     try:
-                        line = f.next()
+                        line = next(f)
                     except StopIteration:
                         break
                     # complex
@@ -98,10 +121,10 @@ def getdata(filename):
                         m[key].append(float(line))
                 elif 'LIST_REAL_CMPLX SWEEPFREQ' in line:
                     xname = line
-                    rows = int(f.next())
+                    rows = int(next(f))
                     m[xname] = np.zeros((rows, 3))
                     for i in range(rows):
-                        m[xname][i, :] = f.next().split()
+                        m[xname][i, :] = next(f).split()
             # Are we in the header?
             if '*' in line:
                 H = False
@@ -184,7 +207,7 @@ if save_zview is True:
 # Import data
 s,m = getdata(filename)
 # Get measurement times
-times = np.array(m['REAL TIME2'] + m['REAL TIME4'] + m['REAL TIME6']) - m['REAL TIME4'][0] + 1.0
+times = np.array(m['REAL TIME2'] + m['REAL TIME4'] + m['REAL TIME6']) - m['REAL TIME2'][0] + 1.0
 # How many sweeps do we expect
 num_sweeps = times.size
 # Initial measurement
@@ -238,7 +261,7 @@ for i in range(num_sweeps):
 #%% Admittance vs. time
 
 # Make xarray with dimensions of frequency and time
-admittance = xr.DataArray(np.column_stack(admittance_list), coords=[('frequency', f), ('time', times[:-1])])
+admittance = xr.DataArray(np.column_stack(admittance_list), coords=[('frequency', f), ('time', times[:len(admittance_list)])])
 # Find frequencies closest to specified frequencies
 freqs = [find_nearest(f, fff) for fff in freq_list]
 # Select only the frequencies wanted from immittance
@@ -249,9 +272,9 @@ y_vs_t.to_csv('admittance_during_deg.csv',index_label='Time (s)')
 # Plot it
 plt.figure()
 for f in freqs:
-    plt.semilogx(y_vs_t.index, y_vs_t[f], 'o', label='{:.0e}'.format(f))
+    plt.loglog(y_vs_t.index, y_vs_t[f], 'o', label='{:.0e}'.format(f))
 plt.legend(loc='best')
 plt.title('Real admittance at various frequencies')
 plt.xlabel('Time (s)')
-plt.ylabel('Real admittance')
+plt.ylabel('Real admittance (S/cm)')
 plt.show()
