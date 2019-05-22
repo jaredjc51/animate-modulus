@@ -4,4 +4,6 @@
 
 Some text.
 
-![Animation](animation.gif)
+![Animation of the data](animation.gif)
+
+some more text

@@ -433,7 +433,7 @@ legend.fontsize      : 16
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
 #figure.titlesize : large      # size of the figure title (Figure.suptitle())
 #figure.titleweight : normal   # weight of the figure title
-figure.figsize : 20, 11.25   # figure size in inches
+figure.figsize : 6, 3.38   # figure size in inches
 #figure.dpi       : 100      # figure dots per inch
 #figure.facecolor : white   # figure facecolor; 0.75 is scalar gray
 #figure.edgecolor : white   # figure edgecolor
