@@ -11,10 +11,12 @@ version 1.1
 import os
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import animation, style
 import glob
 style.use('video.mplstyle')
+mpl.rcParams['animation.convert_path'] = "C:\\Program Files\\ImageMagick-7.0.8-Q16\\magick.exe"
 framerate = 10  # frames / sec (int)
 # List all .csv immittance files
 filenames = glob.glob(os.path.join('immittance', '*.csv'))
@@ -132,6 +134,7 @@ def animate(data):
 anim = animation.FuncAnimation(fig, animate, data_gen, init_func=init,
                                blit=True, save_count=num_files, interval=1000/framerate)
 # Save the animation
-anim.save('video.mp4',
-          extra_args=['-framerate', str(framerate), '-vcodec', 'libx264',
-                      '-r', '30'])
+# anim.save('video.mp4',
+#           extra_args=['-framerate', str(framerate), '-vcodec', 'libx264',
+#                       '-r', '30'])
+anim.save('animation.gif', writer='imagemagick', fps=framerate)
