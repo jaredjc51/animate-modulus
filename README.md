@@ -1,9 +1,7 @@
-# animate-modulus
-
-![Image is here](Admittance_frequency.svg)
-
-Some text.
+# Animating Transient Data
 
 ![Animation of the data](animation.gif)
 
-some more text
+This is an example
+
+![Image is here](degradation_data_Admittance_frequency.svg)
